@@ -1,0 +1,16 @@
+nav a {
+	color: black;
+	padding: 0.4rem 0.6rem;
+	text-decoration: none;
+}
+nav a.active {
+	color: palevioletred;
+	font-weight: bolder;
+}
+nav a:hover {
+	color: violet;
+}
+
+img {
+    max-height: 100px;
+}

@@ -1,0 +1,1 @@
+export { IsLogged } from "./isLogged"
