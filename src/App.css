@@ -1,0 +1,17 @@
+@import "bootstrap/dist/css/bootstrap.css";
+#root {
+    margin: 0 auto;
+    text-align: center;
+    background-color: black;
+  
+  }
+   .logo {
+    height: 6em;
+    padding: 1.5em;
+  }
+  .logo:hover {
+    filter: drop-shadow(0 0 2em #646cffaa);
+  }
+  .logo.react:hover {
+    filter: drop-shadow(0 0 2em #61dafbaa);
+  }
