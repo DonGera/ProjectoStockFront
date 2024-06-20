@@ -1,214 +1,214 @@
-import { Form, Button, Table } from "react-bootstrap";
-import { useRef, useEffect, useState } from "react";
-import axios from "axios"
+import { Container, Col, Row, Form, Button, Table } from "react-bootstrap";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { BACKEND_URL } from '../config/constants';
+import UserModal from './UserModal'
+import { capitalizeFirstLetter } from '../utils/stringUtils';
 
-
-const PanelAdmin = () => {
-  const [data, setData] = useState([]);
-  const [editarId, setEditarId] = useState(false);
-  const [formData, setFormData] = useState({ usuario: "", contraseña: "", email: ""});
+const Inventario = () => {
+  const [sourceData, setSourceData] = useState([]);
   const [busquedaFiltro, setBusquedaFiltro] = useState("");
-  const [paginaActual, setPaginaActual] = useState(1);
-  const clickExterno = useRef(false);
-  const usuariosPagina = 10;
-  const indexUltimo = paginaActual * usuariosPagina;
-  const indexPrimero = indexUltimo - usuariosPagina;
-  let usuariosFiltrados = data.filter((item) =>
-    item.usuario.toLowerCase().includes(busquedaFiltro.toLowerCase())
-  );
-  const dataFiltrada = usuariosFiltrados.slice(indexPrimero, indexUltimo);
+  const [dataFiltrada, setDataFiltrada] = useState(sourceData);
+  const [isToAdduser, setIsToAdduser] = useState(false);
+  const [isToUpdateuser, setIsToUpdateuser] = useState(false);
+  const [userToUpdate, setuserToUpdate] = useState({});
 
   useEffect(() => {
-    setPaginaActual(1);
-  }, [busquedaFiltro]);
+    const fetchData = async () => {
+      const response = await axios.get(`${BACKEND_URL}/users`);
+      const allusers = response.data.map((user) => ({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        password: user.password,
+        role: user.role,
+      }));
 
-  useEffect(() => {
-    if (!editarId) return;
+      setSourceData(allusers);
+      setDataFiltrada(allusers);
+    }
 
-    let selectedItem = document.querySelectorAll(`[id='${editarId}']`);
-    selectedItem[0].focus();
-  }, [editarId]);
+    fetchData();
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        clickExterno.current &&
-        !clickExterno.current.contains(event.target)
-      ) {
-        setEditarId(false);
-      }
-    };
-    document.addEventListener("click", handleClickOutside, true);
-    return () => {
-      document.removeEventListener("click", handleClickOutside, true);
-    };
   }, []);
 
-  const paginas = (numpaginas) => setPaginaActual(numpaginas);
+  useEffect(() => {
+    setBusquedaFiltro('');
+    setDataFiltrada(sourceData);
+  }, [sourceData]);
 
   const handleSearch = (event) => {
     setBusquedaFiltro(event.target.value);
   };
 
-  const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleAddClick = () => {
-    if (formData.usuario && formData.contraseña) {
-      const newItem = {
-        id: Date.now(),
-        usuario: formData.usuario,
-        contraseña: formData.contraseña,
-        email: formData.email
-      };
-      setData([...data, newItem]);
-      setFormData({ usuario: "", contraseña: "", email: ""});
-    }
-  };
-
-  const editar = (id, dataActualizada) => {
-    if (!editarId || editarId !== id) {
-      return;
+  useEffect(() => {
+    if (busquedaFiltro) {
+      const filteredProds = sourceData.filter((user) => {
+        return user.email?.toLowerCase().includes(busquedaFiltro.toLowerCase());
+      });
+      setDataFiltrada(filteredProds);
+    } else {
+      setDataFiltrada(sourceData);
     }
 
-    const listaActualizada = data.map((item) =>
-      item.id === id ? { ...item, ...dataActualizada } : item
-    );
-    setData(listaActualizada);
+  }, [busquedaFiltro]);
+
+  const handleNewuserClick = () => {
+    setIsToAdduser(true);
   };
 
-  const borrar = (id) => {
-    if (dataFiltrada.length === 1 && paginaActual !== 1) {
-      setPaginaActual((ant) => ant - 1);
-    }
-    const listaActualizada = data.filter((item) => item.id !== id);
-    setData(listaActualizada);
+  const handleEdituserClick = (usuario) => {
+    setIsToUpdateuser(true);
+    setuserToUpdate(usuario);
   };
 
-  const postUsuario = async () => {
-    const resp = await axios.post(
-        `${import.meta.env.VITE_SERVER_URI}/api/create-user`
-    )
+  const handleDeleteuserClick = (id) => {
+    axios.delete(`${BACKEND_URL}/users/${id}`)
+      .then(res => {
+        const newusersArray = sourceData.filter((user) => user._id !== id);
+        setSourceData(newusersArray);
 
-    const { status } = resp
+      })
+      .catch((err) => {
+        console.log('Algo ocurrio: ', err);
+      });
+  };
 
-    if (status === 201) {
-        alert("Working")
-    }
-}
+  const handleAdduser = (userInfo) => {
 
-const handleSubmit = () => {
-    handleAddClick()
-    postUsuario()
-}
-   
+    axios.post(`${BACKEND_URL}/users`, userInfo)
+      .then(res => {
+        userInfo._id = res.data._id;
+        setSourceData([...sourceData, userInfo]);
+      })
+      .catch((err) => {
+        console.log('Algo ocurrio: ', err);
+      });
+
+
+    setIsToAdduser(false);
+
+  };
+
+  const handleUpdateuser = (userInfo) => {
+
+    axios.put(`${BACKEND_URL}/users/${userInfo._id}`, userInfo)
+      .then(res => {
+        setSourceData(
+          sourceData.map((user) =>
+            user._id === userInfo._id
+              ? { ...user, ...userInfo }
+              : { ...user }
+          )
+        )
+      })
+      .catch((err) => {
+        console.log('Algo ocurrio: ', err);
+      });
+
+    setIsToUpdateuser(false);
+    setuserToUpdate({});
+
+  };
+
+  const handleCancel = () => {
+    setIsToAdduser(false);
+    setIsToUpdateuser(false);
+    setuserToUpdate({});
+
+  };
+
   return (
-        <div>
-        <Form>
-      <div className="add-container">
-        <div className="info-container">
-        <Form.Group>
-            <Form.Control
-            type="text"
-            placeholder="usuario"
-            name="usuario"
-            value={formData.usuario}
-            onChange={handleInputChange} />
-          </Form.Group>
-        <Form.Group>
-            <Form.Control
-            type="email"
-            placeholder="Email de contacto"
-            name="email"
-            value={formData.email}
-            onChange={handleInputChange} />
-        </Form.Group>
-        </div>
-        <Button className="add" variant="primary" onClick={handleSubmit}>
-              Añadir usuario
-        </Button>
-        </div>
-        </Form>
-<div>
-      <Form className="search-table-container">
-      <Form.Group>
-      <Form.Control
-          className="search-input"
-          type="text"
-          placeholder="Buscar por usuario"
-          value={busquedaFiltro}
-          onChange={handleSearch}/>
-          </Form.Group>
-       </Form>
-        <Table responsive striped bordered hover variant="dark" ref={clickExterno}>
+    <div>
+
+      <Container>
+        <Row>
+          <Col sm={6}>
+            <Form className="search-table-container">
+              <Form.Group>
+                <Form.Control
+                  className="search-input"
+                  type="text"
+                  placeholder="Buscar por email"
+                  value={busquedaFiltro}
+                  onChange={handleSearch} />
+              </Form.Group>
+            </Form>
+          </Col>
+          <Col sm={2}>
+            <div className="add-container">
+              <Button className="add" variant="primary" onClick={handleNewuserClick}>
+                Añadir usuario
+              </Button>
+            </div>
+          </Col>
+        </Row>
+
+        <UserModal
+          show={isToAdduser || isToUpdateuser}
+          userToUpdateInfo={userToUpdate}
+          isCreate={isToAdduser}
+          handleAdduserClick={handleAdduser}
+          handleUpdateuserClick={handleUpdateuser}
+          handleCancelClick={handleCancel}
+        />
+
+        <Table responsive striped bordered hover variant="dark">
           <thead>
             <tr>
               <th>Usuario</th>
-              <th>Email de contacto</th>
+              <th>Email</th>
+              <th>Rol</th>
               <th>Opciones</th>
             </tr>
           </thead>
           <tbody>
-            {dataFiltrada.map((item) => (
-              <tr key={item.id}>
+            {dataFiltrada.map((usuario) => (
+              <tr
+                key={usuario._id}
+              >
                 <td
-                  id={item.id}
-                  contentEditable={editarId === item.id}
-                  onBlur={(e) =>
-                    editar(item.id, { usuario: e.target.innerText })
-                  }
+                  id={usuario._id}
                 >
-                  {item.usuario}
+                  {capitalizeFirstLetter(usuario.name)}
                 </td>
                 <td
-                  id={item.id}
-                  contentEditable={editarId === item.id}
-                  onBlur={(e) =>
-                    editar(item.id, { email: parseInt(e.target.innerText) })
-                  }
+                  id={usuario._id}
                 >
-                  {item.email}
+                  {(usuario.email)}
                 </td>
+                <td
+                  id={usuario._id}
+                >
+                  {(usuario.role)}
+                </td>
+                
                 <td className="actions">
                   <Button
                     className="edit"
-                    onClick={() => {
-                      setEditarId(item.id);
+                    onClick={(e) => {
+                      handleEdituserClick(usuario);
                     }}
                   >
-                    Edit
+                    Editar
                   </Button>
                   <Button
                     className="delete"
-                    onClick={() => borrar(item.id)}
+                    variant="danger"
+                    onClick={() => handleDeleteuserClick(usuario._id)}
                   >
-                    Delete
+                    X
                   </Button>
                 </td>
               </tr>
             ))}
           </tbody>
-          </Table>
-        <div className="paginas">
-          {Array.from(
-            { length: Math.ceil(usuariosFiltrados.length / usuariosPagina) },
-            (_, index) => (
-              <Button
-                key={index + 1}
-                style={{
-                  backgroundColor: paginaActual === index + 1 && "lightgreen",
-                }}
-                onClick={() => paginas(index + 1)}
-              >
-                {index + 1}
-              </Button>
-            )
-          )}
-        </div>
-      </div>
+        </Table>
+
+      </Container>
+
     </div>
   );
 };
 
-export default PanelAdmin;
+export default Inventario;

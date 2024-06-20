@@ -1,1 +1,0 @@
-export { IsLogged } from "./isLogged"

@@ -1,7 +1,6 @@
 import { NavLink, useNavigate } from "react-router-dom"
 import Container from "react-bootstrap/Container"
 import Nav from "react-bootstrap/Nav"
-import NavDropdown from "react-bootstrap/NavDropdown"
 import Navbar from "react-bootstrap/Navbar"
 import Button from "react-bootstrap/Button"
 import "../../css/NavBar.css"
@@ -17,31 +16,23 @@ export const NavBar = () => {
 	}
 
 	return (
-		<Navbar bg="white">
+		<Navbar collapseOnSelect expand="lg" bg="white">
 			<Container>
 			<Navbar.Brand><img src={logo} /></Navbar.Brand>
 				<Navbar.Brand>DP Lista de Stock</Navbar.Brand>
+				<Navbar.Toggle aria-controls="responsive-navbar-nav" />
+				<Navbar.Collapse id="responsive-navbar-nav">
 				<Nav className="me-auto">
 					<NavLink to="/">Home</NavLink>
-					{!localStorage.getItem("user") && (
-						<>
+					
 							<NavLink to="/login">Login</NavLink>
-							<NavLink to="/adminPrueba">AdminPrueba</NavLink>
-						</>
-					)}
-				</Nav>
-				{localStorage.getItem("user") && (
-					<>
-						{localStorage.getItem("role") === "admin" && (
-							<Nav>
-								<NavLink to="/admin">Admin</NavLink>
-							</Nav>
-						)}
-						<Button onClick={handleClick} variant="light">
+							<NavLink to="/admin">Admin</NavLink>
+							<NavLink to="/AboutUs">Quienes somos?</NavLink>
+							<Button onClick={handleClick} variant="light">
 							Log Out
-						</Button>
-					</>
-				)}
+							</Button>
+							</Nav>	
+				</Navbar.Collapse>
 			</Container>
 		</Navbar>
 	)

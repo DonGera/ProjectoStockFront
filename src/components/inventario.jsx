@@ -1,267 +1,237 @@
-import { Form, Button, Table } from "react-bootstrap";
-import { useRef, useEffect, useState } from "react";
+import { Container, Col, Row, Form, Button, Table } from "react-bootstrap";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { BACKEND_URL } from '../config/constants';
+import ProductModal from './ProductModal'
+import { capitalizeFirstLetter, formatDate } from '../utils/stringUtils';
 
 const Inventario = () => {
-  const [data, setData] = useState([]);
-  const [editarId, setEditarId] = useState(false);
-  const [formData, setFormData] = useState({ categoria: "", nombre: "", descripcion: "", dia: "", mes: "", año: "", stock: "" });
+  const [sourceData, setSourceData] = useState([]);
   const [busquedaFiltro, setBusquedaFiltro] = useState("");
-  const [paginaActual, setPaginaActual] = useState(1);
-  const clickExterno = useRef(false);
-  const productosPagina = 5;
-  const indexUltimo = paginaActual * productosPagina;
-  const indexPrimero = indexUltimo - productosPagina;
-  let productosFiltrados = data.filter((item) =>
-    item.categoria.toLowerCase().includes(busquedaFiltro.toLowerCase())
-  );
-  const dataFiltrada = productosFiltrados.slice(indexPrimero, indexUltimo);
+  const [dataFiltrada, setDataFiltrada] = useState(sourceData);
+  const [isToAddProduct, setIsToAddProduct] = useState(false);
+  const [isToUpdateProduct, setIsToUpdateProduct] = useState(false);
+  const [productToUpdate, setProductToUpdate] = useState({});
 
   useEffect(() => {
-    setPaginaActual(1);
-  }, [busquedaFiltro]);
+    const fetchData = async () => {
+      const response = await axios.get(`${BACKEND_URL}/products`);
+      const allProducts = response.data.map((prod) => ({
+        _id: prod._id,
+        name: prod.name,
+        category: prod.category,
+        quantity: prod.quantity,
+        unitPrice: prod.unitPrice,
+        description: prod.description,
+        lastCheckDate: prod.lastCheckDate
+      }));
 
-  useEffect(() => {
-    if (!editarId) return;
+      setSourceData(allProducts);
+      setDataFiltrada(allProducts);
+    }
 
-    let selectedItem = document.querySelectorAll(`[id='${editarId}']`);
-    selectedItem[0].focus();
-  }, [editarId]);
+    fetchData();
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        clickExterno.current &&
-        !clickExterno.current.contains(event.target)
-      ) {
-        setEditarId(false);
-      }
-    };
-    document.addEventListener("click", handleClickOutside, true);
-    return () => {
-      document.removeEventListener("click", handleClickOutside, true);
-    };
   }, []);
 
-  const paginas = (numpaginas) => setPaginaActual(numpaginas);
+  useEffect(() => {
+    setBusquedaFiltro('');
+    setDataFiltrada(sourceData);
+  }, [sourceData]);
 
   const handleSearch = (event) => {
     setBusquedaFiltro(event.target.value);
   };
 
-  const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleAddClick = () => {
-    if (formData.categoria && formData.nombre && formData.descripcion && formData.dia && formData.mes && formData.año && formData.stock) {
-      const newItem = {
-        id: Date.now(),
-        categoria: formData.categoria,
-        nombre: formData.nombre,
-        descripcion: formData.descripcion,
-        dia: formData.dia,
-        mes : formData.mes,
-        año : formData.año,
-        stock: Number(formData.stock)
-      };
-      setData([...data, newItem]);
-      setFormData({ categoria: "", nombre: "", descripcion: "", dia: "", mes: "", año: "", stock: "" });
-    }
-  };
-
-  const editar = (id, dataActualizada) => {
-    if (!editarId || editarId !== id) {
-      return;
+  useEffect(() => {
+    if (busquedaFiltro) {
+      const filteredProds = sourceData.filter((prod) => {
+        return prod.category?.toLowerCase().includes(busquedaFiltro.toLowerCase());
+      });
+      setDataFiltrada(filteredProds);
+    } else {
+      setDataFiltrada(sourceData);
     }
 
-    const listaActualizada = data.map((item) =>
-      item.id === id ? { ...item, ...dataActualizada } : item
-    );
-    setData(listaActualizada);
+  }, [busquedaFiltro]);
+
+  const handleNewProductClick = () => {
+    setIsToAddProduct(true);
   };
 
-  const borrar = (id) => {
-    if (dataFiltrada.length === 1 && paginaActual !== 1) {
-      setPaginaActual((ant) => ant - 1);
-    }
-    const listaActualizada = data.filter((item) => item.id !== id);
-    setData(listaActualizada);
+  const handleEditProductClick = (producto) => {
+    setIsToUpdateProduct(true);
+    setProductToUpdate(producto);
   };
-   
+
+  const handleDeleteProductClick = (id) => {
+    axios.delete(`${BACKEND_URL}/products/${id}`)
+      .then(res => {
+        const newProductsArray = sourceData.filter((prod) => prod._id !== id);
+        setSourceData(newProductsArray);
+
+      })
+      .catch((err) => {
+        console.log('Algo ocurrio: ', err);
+      });
+  };
+
+  const handleAddProduct = (productInfo) => {
+    const currentDate = new Date();
+    productInfo.lastCheckDate = currentDate.toISOString();
+
+    axios.post(`${BACKEND_URL}/products`, productInfo)
+      .then(res => {
+        productInfo._id = res.data._id;
+        setSourceData([...sourceData, productInfo]);
+      })
+      .catch((err) => {
+        console.log('Algo ocurrio: ', err);
+      });
+
+
+    setIsToAddProduct(false);
+
+  };
+
+  const handleUpdateProduct = (productInfo) => {
+
+    const currentDate = new Date();
+    productInfo.lastCheckDate = currentDate.toISOString();
+
+    axios.put(`${BACKEND_URL}/products/${productInfo._id}`, productInfo)
+      .then(res => {
+        setSourceData(
+          sourceData.map((product) =>
+            product._id === productInfo._id
+              ? { ...product, ...productInfo }
+              : { ...product }
+          )
+        )
+      })
+      .catch((err) => {
+        console.log('Algo ocurrio: ', err);
+      });
+
+    setIsToUpdateProduct(false);
+    setProductToUpdate({});
+
+  };
+
+  const handleCancel = () => {
+    setIsToAddProduct(false);
+    setIsToUpdateProduct(false);
+    setProductToUpdate({});
+
+  };
+
   return (
-        <div>
-        <Form>
-      <div className="add-container">
-        <div className="info-container">
-        <Form.Group>
-            <Form.Control
-            type="text"
-            placeholder="Categoria"
-            name="categoria"
-            value={formData.categoria}
-            onChange={handleInputChange} />
-          </Form.Group>
-        <Form.Group>
-            <Form.Control
-            type="text"
-            placeholder="Nombre del producto"
-            name="nombre"
-            value={formData.nombre}
-            onChange={handleInputChange} />
-        </Form.Group>
-        <Form.Group>
-            <Form.Control
-            type="text"
-            placeholder="Descripcion"
-            name="descripcion"
-            value={formData.descripcion}
-            onChange={handleInputChange} />
-            </Form.Group>
-            <Form.Group>
-            <Form.Control
-            type="number"
-            placeholder="dia"
-            name="dia"
-            value={formData.dia}
-            onChange={handleInputChange}
-          />
-          <Form.Control
-            type="number"
-            placeholder="mes"
-            name="mes"
-            value={formData.mes}
-            onChange={handleInputChange}
-          />
-          <Form.Control
-            type="number"
-            placeholder="año"
-            name="año"
-            value={formData.año}
-            onChange={handleInputChange}
-          />
-          </Form.Group>
-          <Form.Group>
-            <Form.Control
-            type="number"
-            placeholder="stock"
-            name="stock"
-            value={formData.stock}
-            onChange={handleInputChange}
-          />
-          </Form.Group>
-        </div>
-        <Button className="add" variant="primary" onClick={handleAddClick}>
-              Añadir producto
-        </Button>
-        </div>
-        </Form>
-<div>
-      <Form className="search-table-container">
-      <Form.Group>
-      <Form.Control
-          className="search-input"
-          type="text"
-          placeholder="Buscar por categoria"
-          value={busquedaFiltro}
-          onChange={handleSearch}/>
-          </Form.Group>
-       </Form>
-        <Table responsive striped bordered hover variant="dark" ref={clickExterno}>
+    <div>
+
+      <Container>
+        <Row>
+          <Col sm={6}>
+            <Form className="search-table-container">
+              <Form.Group>
+                <Form.Control
+                  className="search-input"
+                  type="text"
+                  placeholder="Buscar por categoria"
+                  value={busquedaFiltro}
+                  onChange={handleSearch} />
+              </Form.Group>
+            </Form>
+          </Col>
+          <Col sm={2}>
+            <div className="add-container">
+              <Button className="add" variant="primary" onClick={handleNewProductClick}>
+                Añadir producto
+              </Button>
+            </div>
+          </Col>
+        </Row>
+
+        <ProductModal
+          show={isToAddProduct || isToUpdateProduct}
+          productToUpdateInfo={productToUpdate}
+          isCreate={isToAddProduct}
+          handleAddProductClick={handleAddProduct}
+          handleUpdateProductClick={handleUpdateProduct}
+          handleCancelClick={handleCancel}
+        />
+
+        <Table responsive striped bordered hover variant="dark">
           <thead>
             <tr>
+              <th>Nombre</th>
               <th>Categoria</th>
-              <th>Nombre del producto</th>
-              <th>Descripcion</th>
-              <th>Fecha de ultimo control</th>
               <th>Stock</th>
+              <th>Precio Unitario</th>
+              <th>Descripcion</th>
+              <th>Fecha Ultimo Control</th>
               <th>Opciones</th>
             </tr>
           </thead>
           <tbody>
-            {dataFiltrada.map((item) => (
-              <tr key={item.id}>
+            {dataFiltrada.map((producto) => (
+              <tr
+                key={producto._id}
+              >
                 <td
-                  id={item.id}
-                  contentEditable={editarId === item.id}
-                  onBlur={(e) =>
-                    editar(item.id, { categoria: e.target.innerText })
-                  }
+                  id={producto._id}
                 >
-                  {item.categoria}
+                  {capitalizeFirstLetter(producto.name)}
                 </td>
                 <td
-                  id={item.id}
-                  contentEditable={editarId === item.id}
-                  onBlur={(e) =>
-                    editar(item.id, { nombre: e.target.innerText })
-                  }
+                  id={producto._id}
                 >
-                  {item.nombre}
+                  {capitalizeFirstLetter(producto.category)}
                 </td>
                 <td
-                  id={item.id}
-                  contentEditable={editarId === item.id}
-                  onBlur={(e) =>
-                    editar(item.id, { descripcion: parseInt(e.target.innerText) })
-                  }
+                  id={producto._id}
                 >
-                  {item.descripcion}
+                  {(producto.quantity)}
                 </td>
                 <td
-                  id={item.id}
-                  contentEditable={editarId === item.id}
-                  onBlur={(e) =>
-                    editar(item.id, { fecha: parseInt(e.target.innerText) })
-                  }
+                  id={producto._id}
                 >
-                  {item.dia}/{item.mes}/{item.año}
+                  {producto.unitPrice}
                 </td>
                 <td
-                  id={item.id}
-                  contentEditable={editarId === item.id}
-                  onBlur={(e) =>
-                    editar(item.id, { stock: parseInt(e.target.innerText) })
-                  }
+                  id={producto._id}
                 >
-                  {item.stock}
+                  {capitalizeFirstLetter(producto.description)}
                 </td>
+                <td
+                  id={producto._id}
+                >
+                  {formatDate(producto.lastCheckDate)}
+                </td>
+
                 <td className="actions">
                   <Button
                     className="edit"
-                    onClick={() => {
-                      setEditarId(item.id);
+                    onClick={(e) => {
+                      handleEditProductClick(producto);
                     }}
                   >
-                    Edit
+                    Editar
                   </Button>
                   <Button
                     className="delete"
-                    onClick={() => borrar(item.id)}
+                    variant="danger"
+                    onClick={() => handleDeleteProductClick(producto._id)}
                   >
-                    Delete
+                    X
                   </Button>
                 </td>
               </tr>
             ))}
           </tbody>
-          </Table>
-        <div className="paginas">
-          {Array.from(
-            { length: Math.ceil(productosFiltrados.length / productosPagina) },
-            (_, index) => (
-              <Button
-                key={index + 1}
-                style={{
-                  backgroundColor: paginaActual === index + 1 && "lightgreen",
-                }}
-                onClick={() => paginas(index + 1)}
-              >
-                {index + 1}
-              </Button>
-            )
-          )}
-        </div>
-      </div>
+        </Table>
+
+      </Container>
+
     </div>
   );
 };

@@ -1,5 +1,4 @@
 import { Routes, Route } from "react-router-dom"
-
 import { routes } from '../data'
 
 export const Router = () => (
