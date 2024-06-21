@@ -1,6 +1,5 @@
 import { Login } from "../pages/LogIn"
 import { Home } from "../pages/Home"
-import { AdminPrueba } from "../pages/adminPrueba"
 import { Admin } from "../pages/Admin"
 import { AboutUs } from "../pages/AboutUs"
 import { Error404 } from "../pages/Error404"

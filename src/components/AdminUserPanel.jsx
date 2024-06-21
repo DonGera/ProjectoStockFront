@@ -5,7 +5,7 @@ import { BACKEND_URL } from '../config/constants';
 import UserModal from './UserModal'
 import { capitalizeFirstLetter } from '../utils/stringUtils';
 
-const Inventario = () => {
+const PanelAdmin = () => {
   const [sourceData, setSourceData] = useState([]);
   const [busquedaFiltro, setBusquedaFiltro] = useState("");
   const [dataFiltrada, setDataFiltrada] = useState(sourceData);
@@ -211,4 +211,4 @@ const Inventario = () => {
   );
 };
 
-export default Inventario;
+export default PanelAdmin;

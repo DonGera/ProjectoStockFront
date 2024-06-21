@@ -1,1 +1,0 @@
-export { AdminPrueba } from "./adminPrueba"
