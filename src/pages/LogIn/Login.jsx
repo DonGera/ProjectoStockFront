@@ -55,9 +55,9 @@ export const Login = () => {
 	});
 
 	return (
-		<Container className="mt-4">
+		<Container  className="site-container">
 			<Form
-				style={{ width: 500, margin: "auto" }}
+				style={{ width: 325, margin: "auto" }}
 				onSubmit={formik.handleSubmit}
 			>
 				<h1>Iniciar sesión</h1>

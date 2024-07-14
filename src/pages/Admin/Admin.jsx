@@ -5,7 +5,7 @@ export const Admin = () => {
 
 
 	return (
-		<Container>
+		<Container className="site-container">
 			<PanelAdmin />
 		</Container>
 	)

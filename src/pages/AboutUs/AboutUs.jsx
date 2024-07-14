@@ -4,7 +4,7 @@ import Card from 'react-bootstrap/Card';
 import { CardGroup } from "react-bootstrap";
 export const AboutUs = () => (
 	
-<Container>
+<Container className="site-container">
 <CardGroup>
     <Card>
         <Card.Body>

@@ -25,7 +25,7 @@ export const routes = [
 			</NotLoggedElement>
 		),
 	},
-	{ path: "/adminPrueba", element: <AdminPrueba /> },	{
+	{ path: "/Admin", element: <Admin /> },	{
 		path: "admin",
 		element: (
 			<AdminUserElement>
