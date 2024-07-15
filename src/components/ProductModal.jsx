@@ -93,12 +93,14 @@ const ProductModal = ({
                                 defaultValue={currentProductInfo.name}
                                 type="text"
                                 placeholder=""
+                                maxlength="15"
+                                minlength="3"
                                 onChange={(e) => handleProductInputFieldChange(e, 'name')}
                                 required
                                 autoFocus
                             />
                             <Form.Control.Feedback type="invalid">
-                                Por favor, ingrese el nombre
+                                Por favor, ingrese el nombre, 3 caracteres minimo, 15 maximo
                             </Form.Control.Feedback>
                         </Form.Group>
 
@@ -108,12 +110,14 @@ const ProductModal = ({
                                 defaultValue={currentProductInfo.category}
                                 type="text"
                                 placeholder=""
+                                maxlength="10"
+                                minlength="3"
                                 required
                                 onChange={(e) => handleProductInputFieldChange(e, 'category')}
                             />
                             <Form.Control.Feedback>Muy bien!</Form.Control.Feedback>
                             <Form.Control.Feedback type="invalid">
-                                Tiene que ingresar una categoria
+                                Tiene que ingresar una categoria, 3 caracteres minimo, 10 maximo
                             </Form.Control.Feedback>
                         </Form.Group>
 
@@ -123,12 +127,14 @@ const ProductModal = ({
                                 defaultValue={currentProductInfo.quantity}
                                 type="number"
                                 placeholder=""
+                                min={0}
+                                max={100}
                                 required
                                 onChange={(e) => handleProductInputFieldChange(e, 'quantity')}
                             />
                             <Form.Control.Feedback>Se ve bien!</Form.Control.Feedback>
                             <Form.Control.Feedback type="invalid">
-                                Cuantos productos hay en stock?
+                                Cuantos productos hay en stock? (maximo 100)
                             </Form.Control.Feedback>
                         </Form.Group>
 
@@ -138,12 +144,14 @@ const ProductModal = ({
                                 defaultValue={currentProductInfo.unitPrice}
                                 type="number"
                                 placeholder=""
+                                min={0}
+                                max={5000}
                                 required
                                 onChange={(e) => handleProductInputFieldChange(e, 'unitPrice')}
                             />
                             <Form.Control.Feedback>Genial!</Form.Control.Feedback>
                             <Form.Control.Feedback type="invalid">
-                                Falta el precio!
+                                Falta el precio!(maximo 5000)
                             </Form.Control.Feedback>
                         </Form.Group>
 
@@ -153,6 +161,7 @@ const ProductModal = ({
                                 defaultValue={currentProductInfo.description}
                                 type="text"
                                 placeholder=""
+                                maxlength="50"
                                 onChange={(e) => handleProductInputFieldChange( e, 'description')}
                             />
                         </Form.Group>
