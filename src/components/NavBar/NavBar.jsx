@@ -26,7 +26,7 @@ export const NavBar = () => {
 					<NavLink to="/">Home</NavLink>
 					
 							<NavLink to="/login">Login</NavLink>
-							<NavLink to="/admin">Admin</NavLink>
+							<NavLink to="/Admin">Admin</NavLink>
 							<NavLink to="/AboutUs">Quienes somos?</NavLink>
 							<Button onClick={handleClick} variant="light">
 							Log Out

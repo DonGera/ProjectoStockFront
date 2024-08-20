@@ -3,15 +3,15 @@ import { Home } from "../pages/Home"
 import { Admin } from "../pages/Admin"
 import { AboutUs } from "../pages/AboutUs"
 import { Error404 } from "../pages/Error404"
-import { Navigate } from "react-router-dom";
+//import { Navigate } from "react-router-dom";
 
-const USER_TYPES = {
-	PUBLIC: 'NotLogged',
-	NORMAL_USER: "User",
-	ADMIN_USER: "AdminUser",
-};
+//const USER_TYPES = {
+//	PUBLIC: 'NotLogged',//
+//	NORMAL_USER: "User",//
+//	ADMIN_USER: "AdminUser",//
+//};//
 
-const CURRENT_USER_TYPE = USER_TYPES.ADMIN_USER;
+//const CURRENT_USER_TYPE = USER_TYPES.ADMIN_USER;//
 
 
 export const routes = [
@@ -20,34 +20,26 @@ export const routes = [
 	{
 		path: "/login",
 		element: (
-			<NotLoggedElement>
 				<Login />
-			</NotLoggedElement>
 		),
 	},
-	{ path: "/Admin", element: <Admin /> },	{
-		path: "admin",
-		element: (
-			<AdminUserElement>
-				<Admin />
-			</AdminUserElement>
-		),
-	},
+	{ path: "Admin", element: <Error404 /> },
+		
 	{ path:"*", element:<Error404 />},
 ]
 
-function NotLoggedElement ({ children }) {
-	return <>{children}</>;
-}
-function UserElement ({ children }) {
-	if(CURRENT_USER_TYPE === USER_TYPES.NORMAL_USER || CURRENT_USER_TYPE === USER_TYPES.ADMIN_USER)
-	{return <>{children}</>;
-}else{
-	return <Navigate to={"/login"}/>}
-}
-function AdminUserElement ({ children }) {
-	if(CURRENT_USER_TYPE === USER_TYPES.ADMIN_USER)
-	{return <>{children}</>;
-}else{
-	return <Navigate to={"*"}/>}
-}
+//function NotLoggedElement ({ children }) {
+//	return <>{children}</>;
+//}
+//function UserElement ({ children }) {
+//	if(CURRENT_USER_TYPE === USER_TYPES.NORMAL_USER || CURRENT_USER_TYPE === USER_TYPES.ADMIN_USER)
+//	{return <>{children}</>;
+//}else{
+//	return <Navigate to={"/login"}/>}
+//}
+//function AdminUserElement ({ children }) {
+//if(CURRENT_USER_TYPE === USER_TYPES.ADMIN_USER)
+//	{return <>{children}</>;
+//}else{
+//	return <Navigate to={"*"}/>}
+//}
