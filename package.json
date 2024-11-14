@@ -8,6 +8,7 @@
     "dependencies": {
         "@emotion/react": "^11.11.4",
         "@emotion/styled": "^11.11.5",
+        "@hookform/resolvers": "^3.9.1",
         "@mui/material": "^5.15.19",
         "@mui/x-date-pickers": "^7.6.1",
         "axios": "^1.7.2",
@@ -23,6 +24,7 @@
         "react-bootstrap": "^2.10.2",
         "react-bootstrap-sidebar-menu": "^2.0.3",
         "react-dom": "^18.3.1",
+        "react-hook-form": "^7.53.1",
         "react-icons": "^5.2.1",
         "react-router-dom": "^6.23.1",
         "yup": "^1.4.0"

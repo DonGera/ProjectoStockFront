@@ -1,8 +1,8 @@
-import { Login } from "../pages/LogIn"
-import { Home } from "../pages/Home"
-import { Admin } from "../pages/Admin"
-import { AboutUs } from "../pages/AboutUs"
-import { Error404 } from "../pages/Error404"
+import { Login } from "../pages/LogIn";
+import { Home } from "../pages/Home";
+import { Admin } from "../pages/Admin";
+import { AboutUs } from "../pages/AboutUs";
+import { Error404 } from "../pages/Error404";
 //import { Navigate } from "react-router-dom";
 
 //const USER_TYPES = {
@@ -13,20 +13,17 @@ import { Error404 } from "../pages/Error404"
 
 //const CURRENT_USER_TYPE = USER_TYPES.ADMIN_USER;//
 
-
 export const routes = [
-	{ path: "/", element: <Home /> },
-	{ path: "/AboutUs", element: <AboutUs /> },
-	{
-		path: "/login",
-		element: (
-				<Login />
-		),
-	},
-	{ path: "Admin", element: <Error404 /> },
-		
-	{ path:"*", element:<Error404 />},
-]
+  { path: "/", element: <Home /> },
+  { path: "/AboutUs", element: <AboutUs /> },
+  {
+    path: "/login",
+    element: <Login />,
+  },
+  { path: "Admin", element: <Admin /> },
+
+  { path: "*", element: <Error404 /> },
+];
 
 //function NotLoggedElement ({ children }) {
 //	return <>{children}</>;

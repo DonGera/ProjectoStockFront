@@ -2,26 +2,23 @@ import { Container, Col, Row, Form, Button, Table } from "react-bootstrap";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { BACKEND_URL } from '../config/constants';
-import UserModal from './UserModal'
 import { capitalizeFirstLetter } from '../utils/stringUtils';
 
-const PanelAdmin = () => {
+export const PanelAdmin = () => {
   const [sourceData, setSourceData] = useState([]);
   const [busquedaFiltro, setBusquedaFiltro] = useState("");
   const [dataFiltrada, setDataFiltrada] = useState(sourceData);
   const [isToAdduser, setIsToAdduser] = useState(false);
-  const [isToUpdateuser, setIsToUpdateuser] = useState(false);
-  const [userToUpdate, setuserToUpdate] = useState({});
+
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await axios.get(`${BACKEND_URL}/users`);
+      const response = await axios.get(`${BACKEND_URL}/user`);
       const allusers = response.data.map((user) => ({
         _id: user._id,
         name: user.name,
         email: user.email,
         password: user.password,
-        role: user.role,
       }));
 
       setSourceData(allusers);
@@ -144,22 +141,13 @@ const PanelAdmin = () => {
           </Col>
         </Row>
 
-        <UserModal
-          show={isToAdduser || isToUpdateuser}
-          userToUpdateInfo={userToUpdate}
-          isCreate={isToAdduser}
-          handleAdduserClick={handleAdduser}
-          handleUpdateuserClick={handleUpdateuser}
-          handleCancelClick={handleCancel}
-        />
 
         <Table responsive striped bordered hover variant="dark">
           <thead>
             <tr>
               <th>Usuario</th>
               <th>Email</th>
-              <th>Rol</th>
-              <th>Opciones</th>
+              <th>Eliminar</th>
             </tr>
           </thead>
           <tbody>
@@ -211,4 +199,3 @@ const PanelAdmin = () => {
   );
 };
 
-export default PanelAdmin;

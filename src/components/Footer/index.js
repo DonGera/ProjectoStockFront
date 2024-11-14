@@ -1,1 +1,1 @@
-export { Footerx } from "./Footer"
+export { Footerx } from "./Footer";
